@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Form</title>
+  <script>
+    function showAlert() {
+      alert("Form submitted successfully!");
+      event.target.reset(); // 清空表单
+      setTimeout(function() {
+        window.location.reload(); // 刷新页面，保持在同一页面
+      }, 1000); // 延时一秒，方便用户看到 alert
+      return false; // 阻止默认表单提交行为
+    }
+
+    function fetchUser() {
+      var email = document.getElementById("getEmail").value;
+
+      // 发出GET请求
+      fetch("http://localhost:8080/api/user?email=" + encodeURIComponent(email))
+              .then(response => {
+                if (response.ok) {
+                  return response.json();
+                } else {
+                  throw new Error("User not found");
+                }
+              })
+              .then(data => {
+                console.log(data);
+                document.getElementById("result").innerHTML = "Name: " + data.name + "<br>" +
+                        "Age: " + data.age + "<br>" +
+                        "Email: " + data.email;
+              })
+              .catch(error => {
+                document.getElementById("result").innerHTML = "Failed to fetch: " + error.message;
+              });
+
+
+      // 阻止表单提交和页面刷新
+      return false;
+    }
+  </script>
+</head>
+<body>
+
+<h2>Register Form</h2>
+<form action="http://localhost:8080/api/user" method="post" onsubmit="return showAlert()">
+  <input type="text" id="name" name="name" placeholder="Enter your name" required><br><br>
+  <input type="number" id="age" name="age" placeholder="Enter your age" required><br><br>
+  <input type="email" id="email" name="email" placeholder="Enter your email" required><br><br>
+  <button type="submit">Submit</button>
+</form>
+
+<h2>Get User Info</h2>
+<form onsubmit="return fetchUser()">
+  <input type="email" id="getEmail" name="getEmail" placeholder="Enter your email" required><br><br>
+  <button type="submit">Get User Info</button>
+</form>
+
+<!-- 显示获取到的用户信息 -->
+<div id="result"></div>
+
+</body>
+</html>
